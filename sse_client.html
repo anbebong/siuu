@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>SSE Demo</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; background: #f9f9f9; }
+        h1 { color: #2c3e50; }
+        #events { background: #fff; border: 1px solid #ccc; padding: 20px; min-height: 100px; }
+        .event { margin-bottom: 10px; color: #2980b9; }
+        #custom-popup {
+            position: fixed;
+            top: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #2c3e50;
+            color: #fff;
+            padding: 16px 32px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            font-size: 18px;
+            z-index: 9999;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <h1>SSE Client Demo</h1>
+    <div id="events"></div>
+    <script>
+        const eventsDiv = document.getElementById('events');
+        const es = new EventSource('http://192.168.1.10:8080');
+        es.onmessage = function(e) {
+            const div = document.createElement('div');
+            div.className = 'event';
+            div.textContent = e.data;
+            eventsDiv.appendChild(div);
+            console.log('Received message:', e.data);
+            // Hiển thị popup custom trong trang
+            showPopup("Cập nhật rồi nè");
+        };
+
+        function showPopup(message) {
+            let popup = document.getElementById('custom-popup');
+            if (!popup) {
+                popup = document.createElement('div');
+                popup.id = 'custom-popup';
+                popup.style.position = 'fixed';
+                popup.style.top = '30px';
+                popup.style.left = '50%';
+                popup.style.transform = 'translateX(-50%)';
+                popup.style.background = '#2c3e50';
+                popup.style.color = '#fff';
+                popup.style.padding = '16px 32px';
+                popup.style.borderRadius = '8px';
+                popup.style.boxShadow = '0 2px 8px rgba(0,0,0,0.2)';
+                popup.style.fontSize = '18px';
+                popup.style.zIndex = 9999;
+                document.body.appendChild(popup);
+            }
+            popup.textContent = message;
+            popup.style.display = 'block';
+            setTimeout(() => { popup.style.display = 'none'; }, 3000);
+        }
+
+        es.onerror = function() {
+            const div = document.createElement('div');
+            div.className = 'event';
+            div.style.color = 'red';
+            div.textContent = 'Connection lost or server closed.';
+            eventsDiv.appendChild(div);
+        };
+    </script>
+</body>
+</html>
